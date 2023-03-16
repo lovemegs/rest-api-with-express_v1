@@ -104,16 +104,23 @@ router.post('/courses', authenticateUser, asyncHandler(async(req, res) => {
 
 // Update the corresponding course
 router.put('/courses/:id', authenticateUser, asyncHandler(async(req, res) => {
-    const course = await Course.findByPk(req.params.id);
-    if (course) {
-        if (course.userId === req.currentUser.id) {
-            await course.update(req.body);
-            res.status(204).end();
+    try {
+        const course = await Course.findByPk(req.params.id);
+        if (course) {
+            if (course.userId === req.currentUser.id) {
+                await course.update(req.body);
+                res.status(204).end();
+            } else {
+                res.status(403).end();
+            }
+        } 
+    } catch (error) {
+        if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
+            const errors = error.errors.map(err => err.message);
+            res.status(400).json({errors});
         } else {
-            res.status(403).end();
+            throw error;
         }
-    } else {
-        next();
     }
 }));
 
