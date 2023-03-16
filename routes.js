@@ -18,14 +18,14 @@ function asyncHandler(cb) {
     }
 }
 
-// GET all users
+// GET the current authenticated user
 router.get('/users', authenticateUser, asyncHandler(async(req, res) => {
-    const users = await User.findAll({
+    const user = await User.findByPk(req.currentUser.id, {
         attributes: {
             exclude: ['password', 'createdAt', 'updatedAt']
         }
     });
-    res.json(users);
+    res.json(user);
     res.status(200).end();
 }));
 
@@ -86,8 +86,11 @@ router.get('/courses/:id', asyncHandler(async(req, res) => {
 // Create a new course
 router.post('/courses', authenticateUser, asyncHandler(async(req, res) => {
     try {
-        const course = await Course.create(req.body);
-        res.json(course);
+        const course = await Course.create({
+            title: req.body.title,
+            description: req.body.description,
+            userId: req.currentUser.id
+        });
         res.status(201).location(`/courses/${course.id}`).end();
     } catch (error) {
         if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
@@ -100,7 +103,7 @@ router.post('/courses', authenticateUser, asyncHandler(async(req, res) => {
 }));
 
 // Update the corresponding course
-router.put('/courses/:id', authenticateUser, asyncHandler(async(req, res, next) => {
+router.put('/courses/:id', authenticateUser, asyncHandler(async(req, res) => {
     const course = await Course.findByPk(req.params.id);
     if (course) {
         if (course.userId === req.currentUser.id) {

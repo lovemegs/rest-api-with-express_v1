@@ -1,17 +1,17 @@
 'use strict';
-const Sequelize = require('sequelize');
+const { Model, DataTypes } = require('sequelize');
 
 
 module.exports = (sequelize) => {
-    class Course extends Sequelize.Model { }
+    class Course extends Model {}
     Course.init({
         id: {
-            type: Sequelize.INTEGER,
+            type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
         },
         title: {
-            type: Sequelize.STRING,
+            type: DataTypes.STRING,
             allowNull: false,
             validate: {
                 notNull: {
@@ -23,7 +23,7 @@ module.exports = (sequelize) => {
             }
         },
         description: {
-            type: Sequelize.TEXT,
+            type: DataTypes.TEXT,
             allowNull: false,
             validate: {
                 notNull: {
@@ -35,12 +35,10 @@ module.exports = (sequelize) => {
             }
         },
         estimatedTime: {
-            type: Sequelize.STRING,
-            allowNull: false,
+            type: DataTypes.STRING,
         },
         materialsNeeded: {
-            type: Sequelize.STRING,
-            allowNull: false,
+            type: DataTypes.STRING,
         },
     }, { sequelize });
 
@@ -48,8 +46,7 @@ module.exports = (sequelize) => {
     Course.associate = (models) => {
         Course.belongsTo(models.User, {
             foreignKey: {
-                fieldName: 'userId',
-                allowNull: false,
+                fieldName: 'userId'
             }
         });
     };
